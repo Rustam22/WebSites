@@ -1,0 +1,10 @@
+[07-May-2010 10:34:03] PHP Warning:  imagecreatefromjpeg(/home/meqa/public_html/imagemanager/images/govşaz.jpg) [<a href='function.imagecreatefromjpeg'>function.imagecreatefromjpeg</a>]: failed to open stream: No such file or directory in /home/meqa/public_html/imagemanager/includes/general.php on line 643
+[07-May-2010 10:34:03] PHP Warning:  imagesx(): supplied argument is not a valid Image resource in /home/meqa/public_html/imagemanager/includes/general.php on line 645
+[07-May-2010 10:34:03] PHP Warning:  imagesy(): supplied argument is not a valid Image resource in /home/meqa/public_html/imagemanager/includes/general.php on line 645
+[07-May-2010 10:34:03] PHP Warning:  imagecopyresized(): supplied argument is not a valid Image resource in /home/meqa/public_html/imagemanager/includes/general.php on line 645
+[07-May-2010 10:34:03] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/meqa/public_html/imagemanager/includes/general.php:643) in /home/meqa/public_html/imagemanager/thumbnail.php on line 110
+[07-May-2010 10:34:04] PHP Warning:  imagecreatefromjpeg(/home/meqa/public_html/imagemanager/images/İnsaat.jpg) [<a href='function.imagecreatefromjpeg'>function.imagecreatefromjpeg</a>]: failed to open stream: No such file or directory in /home/meqa/public_html/imagemanager/includes/general.php on line 643
+[07-May-2010 10:34:04] PHP Warning:  imagesx(): supplied argument is not a valid Image resource in /home/meqa/public_html/imagemanager/includes/general.php on line 645
+[07-May-2010 10:34:04] PHP Warning:  imagesy(): supplied argument is not a valid Image resource in /home/meqa/public_html/imagemanager/includes/general.php on line 645
+[07-May-2010 10:34:04] PHP Warning:  imagecopyresized(): supplied argument is not a valid Image resource in /home/meqa/public_html/imagemanager/includes/general.php on line 645
+[07-May-2010 10:34:04] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/meqa/public_html/imagemanager/includes/general.php:643) in /home/meqa/public_html/imagemanager/thumbnail.php on line 110

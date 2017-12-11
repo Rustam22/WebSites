@@ -1,0 +1,1 @@
+<div class="afc-field-container textarea-field">	<div class="afc-field-label">{$title}: {if $required == 1}<span class="field-required">*</span>{/if}</div>	<div class="afc-field-input afc-field-own">		<textarea name="{$name}">{if isset($value)}{$value}{/if}</textarea>	</div></div>

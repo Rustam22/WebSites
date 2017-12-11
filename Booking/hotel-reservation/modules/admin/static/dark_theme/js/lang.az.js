@@ -1,0 +1,13 @@
+var Lang = [];
+Lang['close'] = 'Close';
+Lang['ready_to_delete'] = 'Do you want to delete?';
+Lang['info'] = 'Information';
+Lang['file_selected'] = 'selected';
+Lang['date_changed'] = 'Date Changed';
+Lang['az'] = 'Azərbaycan';
+Lang['en'] = 'İngilis';
+Lang['ru'] = 'Rus';
+Lang['filled_not_correct'] = 'not filled properly';
+Lang['in_lang'] = 'In the language';
+Lang['error'] = 'Error';
+Lang['saved'] = 'Saved';

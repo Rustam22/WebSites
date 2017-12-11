@@ -1,0 +1,1 @@
+<div>	<b><a href="http://birja.com">Bija.com</a> - account activation.</b>	<p>{$m.reg_message} <a href="{$activate_link}">{$activate_link}</a></p></div>

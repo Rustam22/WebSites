@@ -1,0 +1,1 @@
+<div class="afc-field-container text-field text-field-horizontal" >	<div class="afc-field-label left">{$title}: {if $required == 1}<span class="field-required">*</span>{/if}</div>	<div class="afc-field-input left afc-field-own">		<input type="text" name="{$name}" {if isset($value)}value="{$value}"{/if} />	</div>	<div class="clear"></div></div>

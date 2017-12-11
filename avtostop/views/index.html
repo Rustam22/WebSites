@@ -1,0 +1,1164 @@
+    <html xmlns="http://www.w3.org/1999/html">
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Avtostop</title>
+    <link rel="stylesheet" href="css/jquery.mobile.icons.min.css" />
+    <link rel="stylesheet" href="css/jquery.mobile.structure.css" />
+    <link rel="stylesheet" href="css/avtostop_m.min.css" />
+    <script src="js/jquery-1.11.1.min.js"></script>
+    <script src="js/jquery.mobile-1.4.3.min.js"></script>
+    <script src="js/jquery.js"></script>
+    <script src="js/actions.js"></script>
+    <script src="js/kasko.js"></script>
+
+
+    <!--Get Avto Advices Data-->
+    <style type="text/css">
+        .avto-device {
+            margin-bottom: 145px;
+            height: inherit;
+            overflow-x: hidden;
+        }
+        .ui-content {
+            overflow-x: hidden;
+            margin-top: -10px;
+        }
+        .ui-mobile .ui-page-active {
+            height: inherit;
+        }
+        .ui-header-fixed .ui-fixed-hidden {
+            z-index: -1;
+        }
+        .win_head {
+            margin-bottom: 50px;
+        }
+        .logo_as {
+            width: 84%;
+        }
+        .advice {
+            overflow-x: hidden;
+        }
+        .avto-device table {
+            margin-left: -35px;
+            width: 271px !important;
+            border-collapse: collapse;
+        }
+        .avto-device table tr td strong, h1, h2, h3, h4, h5, p, span  {
+
+        }
+        .news_block .inside h4 {
+            font-size: 1.3em;
+            font-family: calibri;
+            color: #6d6e71;
+        }
+        .news_block .info_block_inside {
+            padding: .5em 1.3em;
+            width: 95%;
+            margin: 20px auto;
+        }
+        .news_block .inside {
+            margin-top: 11px;
+        }
+        .news_block .inside img {
+            float: left;
+            cursor: pointer;
+        }
+        .news_block .inside h4{
+            line-height: 22px;
+            text-indent: 1px;
+            margin-left: 37px;
+        }
+        .news_block .info_block_inside p {
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        .news_block .info_block_inside img {
+            width: 93%;
+            height: inherit;
+            margin-right: 20px;
+        }
+        .news_block .info_block_inside iframe {
+            width: 93%;
+            height: inherit;
+            margin-right: 20px;
+        }
+        .news_block .info_block_inside {
+            display: none;
+        }
+    </style>
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            var defaultScreenWidth = screen.width;
+            var defaultScreenHeight = screen.height;
+            var supportsOrientationChange = "onorientationchange" in window,
+                    orientationEvent = supportsOrientationChange ? "orientationchange" : "resize";
+
+            window.addEventListener(orientationEvent, function() {
+                if(screen.width == defaultScreenWidth && defaultScreenHeight == screen.height) {
+                    $(".logo_as").css("width", "340px");
+                }
+                if(screen.width == defaultScreenHeight && defaultScreenWidth == screen.height) {
+
+                    $(".logo_as").css("width", "84%");
+                }
+            }, false);
+
+
+            $("body").on( "click", ".inside img", function( event ) {
+                var defaultBlock = $("#" + (this.id) + ".info_block_inside").css("display");
+                if(defaultBlock == "block") {
+                    $(".inside #" + (this.id)).attr("src", "img/plus.png");
+                    $("#" + (this.id) + ".info_block_inside").css("display", "none");
+                } else if(defaultBlock == "none") {
+                    $(".inside #" + (this.id)).attr("src", "img/minus.png");
+                    $("#" + (this.id) + ".info_block_inside").css("display", "block");
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+
+        //configs
+        var siteName = 'http://avtostop.tv';
+        var hostUrl = siteName;
+        var UrlOfAutoUseful = hostUrl + '/auto/autoAdvices/getAll';
+        var UrlOfAutoCount = hostUrl + '/auto/autoAdvices/getCount';
+        var staticGetDataLimit = 10;
+        var startCountAuto = 10;
+
+        //settings
+        var connectStatus = true;
+        var DB_AUTO = '';
+        var adviceAutoLength = getAutoAdviceCount();
+        var beetWeenAuto = adviceAutoLength - (parseInt(adviceAutoLength / startCountAuto)) * startCountAuto;
+
+        //ajax get data request
+        function getAllDataOfAvtoAUsefulOrAdvices(url, start, end) {
+            $.ajax({
+                type: 'post',
+                url:  url,
+                async: false,
+                data: 'start=' + start + '&end=' + end,
+                dataType: 'json',
+                success: function(data) {assignJsonData(JSON.parse(JSON.stringify(data)));},
+                error: function (status) {assignJsonData(false);}
+            });
+        }
+        function assignJsonData(value) {
+            if(value != false) {DB_AUTO = value;}
+            else {connectStatus = false;}
+        }
+        function getAutoAdviceCount() {
+            var count = 0;
+            $.ajax({
+                type: 'post',
+                url:  UrlOfAutoCount,
+                async: false,
+                success: function(data) {count = parseInt(data);}
+            });
+            return count;
+        }
+
+        //data transformation and append
+        var count = 0;
+        function loadJsonDataToUiContentAfter(start, end) {
+            for(var i = start; i < end; i++) {
+                count++;
+                var txt =  "<div class='news_block'>" +
+                        "<p>" + DB_AUTO[i].date + "</p>" +
+                        "<div class='inside'>" +
+                        "<img src='img/plus.png' id='" + count + "'>" +
+                        "<h4>" + DB_AUTO[i].itemTitle + "</h4>" +
+                        "</div>" +
+                        "<div class='info_block_inside' id='"+ count +"'>" + DB_AUTO[i].content + "</div>" +
+                        "</div>";
+                $(".ui-content .avto-device").append(txt);
+            }
+        }
+        function replaceImg() {         //image src transfer
+            var img = $(".avto-device .info_block_inside p img");
+            for(var i = 0; i < img.length; i++) {
+                var src = img[i].src;
+                if(src.match(/public/g) == 'public') {
+                    if(src.match(/avtostop/g) != 'avtostop') {
+                        var resultSrc = hostUrl + src.substr(src.indexOf('/public'));
+                        img[i].src = '';
+                        img[i].src = resultSrc;
+                    }
+                }
+            }
+        }
+
+        //click events
+        $("a[href='#pagetwo']").click(function() {
+            if(connectStatus == true && $(".ui-content .avto-device .news_block").length == 0) {
+                getAllDataOfAvtoAUsefulOrAdvices(UrlOfAutoUseful, 0, 10);
+                loadJsonDataToUiContentAfter(0, DB_AUTO.length);
+                replaceImg();
+            }
+        });
+
+        //load data when scrolling end
+        $(".ui-content").scroll( function() {
+            //$(".header_fixed").html((($(this)[0].scrollHeight) - $(this).scrollTop()) + " - " + $(this).scrollTop() + " - " + ($(this).outerHeight() + 1));
+            if((($(this)[0].scrollHeight) - $(this).scrollTop()) >= ($(this).outerHeight() - 7) && (($(this)[0].scrollHeight) - $(this).scrollTop()) <= ($(this).outerHeight() + 7)) {
+                if((startCountAuto + beetWeenAuto) < adviceAutoLength) {
+                    getAllDataOfAvtoAUsefulOrAdvices(UrlOfAutoUseful, startCountAuto, staticGetDataLimit);
+                    loadJsonDataToUiContentAfter(0, DB_AUTO.length);
+                    replaceImg();
+                    startCountAuto += 10;
+                }
+            }
+        });
+
+
+
+        //Advices Script
+        //configs
+        var UrlOfAdviceUseful = hostUrl + '/advices/getAll';
+        var UrlOfAdviceCount =  hostUrl + '/advices/getCount';
+        var startCountAdvice = 5;
+
+        //settings
+        var DB_ADVICE = '';
+        var adviceAdviceLength = getAdviceCount();
+        var beetWeenAdvice = adviceAdviceLength - (parseInt(adviceAdviceLength / startCountAdvice)) * startCountAdvice;
+
+        //click events
+        $("a[href='#pagethree']").click(function() {
+            if(connectStatus == true && $(".ui-content .advice .news_advice").length == 0) {
+                getAllDataAdvices(UrlOfAdviceUseful, 0, 10);
+                loadJsonDataToContentAfter(0, DB_ADVICE.length);
+                replaceUrl();
+            }
+        });
+        //scroll events
+        $(".advice-content").scroll( function() {
+            if((($(this)[0].scrollHeight) - $(this).scrollTop()) >= ($(this).outerHeight() - 7) && (($(this)[0].scrollHeight) - $(this).scrollTop()) <= ($(this).outerHeight() + 7)) {
+                if((startCountAdvice + beetWeenAdvice) < adviceAdviceLength) {
+                    getAllDataAdvices(UrlOfAdviceUseful, startCountAdvice, staticGetDataLimit);
+                    loadJsonDataToContentAfter(0, DB_ADVICE.length);
+                    replaceUrl();
+                    startCountAdvice += 10;
+                }
+            }
+        });
+
+        function getAllDataAdvices(url, start, end) {
+            $.ajax({
+                type: 'post',
+                url:  url,
+                async: false,
+                data: 'start=' + start + '&end=' + end,
+                dataType: 'json',
+                success: function(data) {assignJsonDataAdvice(JSON.parse(JSON.stringify(data)));},
+                error: function (status) {assignJsonDataAdvice(false);}
+            });
+        }
+        function assignJsonDataAdvice(value) {
+            if(value != false) {DB_ADVICE = value;}
+            else {connectStatus = false;}
+        }
+        function getAdviceCount() {
+            var count_8 = 0;
+            $.ajax({
+                type: 'post',
+                url:  UrlOfAdviceCount,
+                async: false,
+                success: function(data) {count_8 = parseInt(data);}
+            });
+            return count_8;
+        }
+
+        //data transformation and append
+        var countAdvice = 0;
+        function loadJsonDataToContentAfter(start, end) {
+            for(var i = start; i < end; i++) {
+                countAdvice++;
+                var txt = "<div class='news_advice'>" +
+                        "<p>" + DB_ADVICE[i].date + "</p>" +
+                        "<div class='inside'>" +
+                        "<img src='img/plus.png' id='" + countAdvice + "_'>" +
+                        "<h4>" + DB_ADVICE[i].itemTitle + "</h4>" +
+                        "</div>" +
+                        "<div class='info_block_inside' id='" + countAdvice + "_'>" +
+                        "<img src='img/word_logo.png'>" + DB_ADVICE[i].content + "<br>" +
+                        "</div>" +
+                        "</div>";
+                $(".advice-content .advice").append(txt);
+            }
+        }
+        function replaceUrl() {         //image src transfer
+            var url = $(".ui-content .advice .news_advice .info_block_inside p a");
+            for(var i = 0; i < url.length; i++) {
+                var href = url[i].href;
+                $(".advice .news_advice .info_block_inside a").attr('target', '_blank');
+                if(href.match(/public/g) == 'public') {
+                    if(href.match(/avtostop/g) != 'avtostop') {
+                        var resultUrl = siteName + href.substr(href.indexOf('/public'));
+                        url[i].href = '';
+                        url[i].href = resultUrl;
+                    }
+                }
+            }
+        }
+
+
+
+        //Radio Translation (time)
+        $("a[href='#pagenine']").click(function() {
+            if(connectStatus == true) {
+                var time = new Date();
+                var currentTime = time.getHours();
+                var startTime = 18;
+                var endTime = 20;
+
+                if(currentTime >= startTime && currentTime <= endTime) {
+                    $(".radio_block img").attr("src", "img/radio_red.png");
+                    $('body').append(tmpl($('#t-player').html(), {}));
+                } else {
+                    $(".radio_block img").attr("src", "img/radio_grey.png");
+                }
+            }
+        });
+    });
+    </script>
+
+    <script type="text/javascript">
+        (function(){
+            var cache = {};
+            this.tmpl = function tmpl(str, data){
+                // Figure out if we're getting a template, or if we need to
+                // load the template - and be sure to cache the result.
+                var fn = !/\W/.test(str) ?
+                        cache[str] = cache[str] ||
+                                tmpl(document.getElementById(str).innerHTML) :
+
+                    // Generate a reusable function that will serve as a template
+                    // generator (and which will be cached).
+                        new Function("obj",
+                                "var p=[],print=function(){p.push.apply(p,arguments);};" +
+
+                                    // Introduce the data as local variables using with(){}
+                                        "with(obj){p.push('" +
+
+                                    // Convert the template into pure JavaScript
+                                        str
+                                                .replace(/[\r\t\n]/g, " ")
+                                                .split("<%").join("\t")
+                                                .replace(/((^|%>)[^\t]*)'/g, "$1\r")
+                                                .replace(/\t=(.*?)%>/g, "',$1,'")
+                                                .split("\t").join("');")
+                                                .split("%>").join("p.push('")
+                                                .split("\r").join("\\'") + "');}return p.join('');");
+
+                // Provide some basic currying to the user
+                return data ? fn( data ) : fn;
+            };
+        })();
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            function checkOutHashTags() {
+                var current_url = location.href.substr(0 -10);
+                if(current_url == "index.html" || current_url  == "op_mobile/" || current_url  == "op_mobile") {
+                    $("div[data-role='page']").css("background-color", "#e9e9e9");
+                } else {
+                    $("div[data-role='page']").css("background-color", "#ffffff");
+                }
+            }
+            checkOutHashTags();
+            $(window).on('hashchange', function() {
+                checkOutHashTags();
+            });
+            $("#gcal").on("click", function(){
+                calculateCustom();
+            });
+            document.getElementById("gcal").onclick = function() {
+                $(".hesab_tr").css("display","table-row");
+                $("#line1").addClass("hesab_line");
+            }
+            $("[href='#pagefour']").click(function() {
+                $(".hesab_tr").css("display","none");
+                $("#line1").removeClass("hesab_line");
+            });
+            $("#tcal").on("click", function(){
+                calcTech();
+            });
+            document.getElementById("tcal").onclick = function() {
+                $(".hesab_tr").css("display","table-row");
+                $("#line2").addClass("hesab_line");
+            }
+            $("[href='#pagefour']").click(function() {
+                $(".hesab_tr").css("display","none");
+                $("#line2").removeClass("hesab_line");
+            });
+            $("#ical").on("click", function(){
+                calcIns();
+            });
+            $('#avto-type').change(function(){
+                if($(this).val() == '4' || $(this).val() == '5' || $(this).val() == '6' || $(this).val() == '7'){ // or this.value == 'volvo'
+                    $(".hesab_tr1").css("display","none");
+                }
+                else {
+                    $(".hesab_tr1").css("display","table-row");
+                }
+                if($(this).val() == '3'){ // or this.value == 'volvo'
+                    $(".hesab_tr1").css("display","none");
+                    $(".hesab_tr3").css("display","table-row");
+                }
+                else {
+                    $(".hesab_tr3").css("display","none");
+
+                }
+                if($(this).val() == '2'){ // or this.value == 'volvo'
+                    $(".hesab_tr1").css("display","none");
+                    $(".hesab_tr2").css("display","table-row");
+                }
+                else {
+                    $(".hesab_tr2").css("display","none");
+
+                }
+            });
+            document.getElementById("ical").onclick = function() {
+                $(".hesab_tr").css("display","table-row");
+                $("#line3").addClass("hesab_line");
+            }
+            $("[href='#pagefour']").click(function() {
+                $(".hesab_tr").css("display","none");
+                $("#line3").removeClass("hesab_line");
+            });
+            $("#hbutton").on("click", function(){
+
+                recalc();
+
+            });
+            document.getElementById("hbutton").onclick = function() {
+                $(".hesab_tr").css("display","table-row");
+                $("#line4").addClass("hesab_line");
+            }
+            $("[href='#pagefour']").click(function() {
+                $(".hesab_tr").css("display","none");
+                $("#line4").removeClass("hesab_line");
+            });
+        });
+    </script>
+    </head>
+
+
+    <body>
+    <style type="text/css">
+        body {
+            overflow-y: hidden;
+            overflow-x: hidden;
+        }
+        #pagetwo {
+            height: inherit;
+        }
+    </style>
+    <div data-role="page" data-theme="a" id="pageone">
+
+        <div data-role="header" data-position="fixed" style="position: fixed; z-index: -1;">
+            <h1></h1>
+        </div>
+
+        <div data-role="main">
+            <div class="win_head">
+                <div class="win_logo">
+                    <img class="logo_as" src="img/logo.png"/>
+                </div>
+
+                <div class="win_menu">
+                    <a href="#pagetwo"><div class="menu">Avtofayda</div></a>
+                    <a href="#pagethree" id="advice"><div class="menu">Məsləhətlər</div></a>
+                    <a href="#pagefour"><div class="menu">Kalkulyatorlar</div></a>
+                    <a href="https://www.youtube.com/channel/UCsUoL8RwXnVT7wa3uLe3lpg" target="_blank"><div class="menu">Youtube kanalı</div></a>
+                    <a href="#pagenine"><div class="menu">Radio efiri</div></a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- page 2 -->
+
+    <div data-role="page" id="pagetwo">
+
+        <div data-role="header" data-position="fixed">
+            <div class="header_fixed">
+                <div class="header_fixed_win">
+                    <a class="f-left" href="#pageone"><img class="logo_button1" src="img/logo_1.png"/></a>
+                    <a class="f-right" href="#pagenine"><img class="logo_button2" src="img/logo_radio.png"/></a>
+                    <a class="f-right header_fixed_win_y" href="https://www.youtube.com/channel/UCsUoL8RwXnVT7wa3uLe3lpg" target="_blank"><img class="logo_button2" src="img/logo_youtube.png"/></a>
+                </div>
+            </div>
+
+            <div data-role="navbar">
+                <ul>
+                    <li><a href="#pagetwo" class="ui-link ui-btn-active ui-state-persist">Avtofayda</a><div class="parallelogram ui-state-persist"></div></li>
+                    <li><a href="#pagethree">Məsləhətlər</a><div></div></li>
+                    <li><a href="#pagefour">Kalkulyatorlar</a><div></div></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div data-role="main" class="ui-content" style="height: 100%;">
+            <!--Insert Json Data-->
+            <div class="avto-device">
+
+            </div>
+        </div>
+
+    </div>
+    <!-- page 3 -->
+
+
+    <div data-role="page" id="pagethree">
+
+        <div data-role="header" data-position="fixed">
+            <div class="header_fixed">
+                <div class="header_fixed_win">
+                    <a class="f-left" href="#pageone"><img class="logo_button1" src="img/logo_1.png"/></a>
+                    <a class="f-right" href="#pagenine"><img class="logo_button2" src="img/logo_radio.png"/></a>
+                    <a class="f-right header_fixed_win_y" href="https://www.youtube.com/channel/UCsUoL8RwXnVT7wa3uLe3lpg" target="_blank"><img class="logo_button2" src="img/logo_youtube.png"/></a>
+                </div>
+            </div>
+
+            <div data-role="navbar" data-iconpos="left">
+                <ul>
+                    <li><a href="#pagetwo">Avtofayda</a><div></div></li>
+                    <li><a href="#pagethree" class="ui-link ui-btn-active ui-state-persist">Məsləhətlər</a><div class="parallelogram ui-state-persist"></div></li>
+                    <li><a href="#pagefour">Kalkulyatorlar</a><div id="parallelogram"></div></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <style type="text/css">
+            .advice {
+                margin-bottom: 145px;
+            }
+            .advice .news_advice {
+                width: 95%;
+                margin: 20px auto;
+            }
+            .advice .news_advice .inside {
+                margin-top: 11px;
+            }
+            .advice .news_advice .inside img {
+                float: left;
+                cursor: pointer;
+            }
+            .advice .news_advice .inside h4 {
+                text-indent: 1px;
+                margin-left: 37px;
+                font-size: 1.3em;
+                line-height: 0.9;
+                font-family: calibri;
+                color: #6d6e71;
+            }
+            .advice .news_advice .info_block_inside {
+                display: none;
+                padding: .5em 1.3em;
+                width: 95%;
+                margin: 20px auto;
+            }
+            .advice .news_advice .info_block_inside img {
+                vertical-align: top;
+                height: 50px;
+                margin-right: 20px;
+                float: left;
+            }
+            .advice .news_advice .info_block_inside a{
+                color: #808285;
+                text-decoration: underline;
+                font-size: 1.3em;
+            }
+            .advice .news_advice .info_block_inside a:hover {
+                color: #000;
+            }
+        </style>
+        <div data-role="main" class="ui-content advice-content" style="height: 100%;">
+            <div class="advice">
+
+                <!--Insert Advices-->
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- page 4 -->
+
+
+    <div data-role="page" id="pagefour">
+
+        <div data-role="header" data-position="fixed">
+            <div class="header_fixed">
+                <div class="header_fixed_win">
+                    <a class="f-left" href="#pageone"><img class="logo_button1" src="img/logo_1.png"/></a>
+                    <a class="f-right" href="#pagenine"><img class="logo_button2" src="img/logo_radio.png"/></a>
+                    <a class="f-right header_fixed_win_y" href="https://www.youtube.com/channel/UCsUoL8RwXnVT7wa3uLe3lpg" target="_blank"><img class="logo_button2" src="img/logo_youtube.png"/></a>
+                </div>
+            </div>
+
+            <div data-role="navbar">
+                <ul>
+                    <li><a href="#pagetwo">Avtofayda</a><div id="parallelogram"></div></li>
+                    <li><a href="#pagethree">Məsləhətlər</a><div id="parallelogram"></div></li>
+                    <li><a href="#pagefour" class="ui-link ui-btn-active ui-state-persist">Kalkulyatorlar</a><div class="parallelogram ui-state-persist"></div></li>
+                </ul>
+            </div>
+
+        </div>
+        <div data-role="main" class="ui-content">
+            <div class="kals_window">
+                <a class="text_none" href="#pagefive">
+                    <div class="kal_block">
+                        <img src="img/gk.png"/>
+                        <span class="text_black">Gömrük kalkulyatoru</span>
+                    </div><hr>
+                </a>
+                <a class="text_none" href="#pagesix">
+                    <div class="kal_block">
+                        <img src="img/tb.png"/>
+                        <span class="text_black">Texniki baxış</span>
+                    </div><hr>
+                </a>
+                <a class="text_none" href="#pageseven">
+                    <div class="kal_block">
+                        <img src="img/is.png"/>
+                        <span class="text_black">İcbari sığorta</span>
+                    </div><hr>
+                </a>
+                <a class="text_none" href="#pageeight">
+                    <div class="kal_block">
+                        <img src="img/ks.png"/>
+                        <span class="text_black">KASKO sığorta</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- page 5 -->
+
+
+    <div data-role="page" id="pagefive">
+
+        <div data-role="header" data-position="fixed">
+            <div class="header_fixed">
+                <div class="header_fixed_win">
+                    <a class="f-left" href="#pageone"><img class="logo_button1" src="img/logo_1.png"/></a>
+                    <a class="f-right" href="#pagenine"><img class="logo_button2" src="img/logo_radio.png"/></a>
+                    <a class="f-right header_fixed_win_y" href="https://www.youtube.com/channel/UCsUoL8RwXnVT7wa3uLe3lpg" target="_blank"><img class="logo_button2" src="img/logo_youtube.png"/></a>
+                </div>
+            </div>
+
+            <div data-role="navbar">
+                <ul>
+                    <li><a href="#pagetwo">Avtofayda</a><div id="parallelogram"></div></li>
+                    <li><a href="#pagethree">Məsləhətlər</a><div id="parallelogram"></div></li>
+                    <li><a href="#pagefour" class="ui-link ui-btn-active ui-state-persist">Kalkulyatorlar</a><div class="parallelogram ui-state-persist"></div></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div data-role="main" class="ui-content">
+
+            <div class="kals_window">
+                <div class="f-left">
+                    <img src="img/gk.png"/>
+                </div>
+
+                <div class="custom_info">
+                    <div class="custom_info_header"><span class="text_black">Gömrük kalkulyatoru</span></div>
+                    <div class="custom_middle">
+                        <table>
+                            <tr>
+                                <td class="text_right">Status:</td>
+                                <td class="kal_new_win_td">
+                                    <select class="select" id="custom_status">
+                                        <option value="1">Təzə</option>
+                                        <option value="2">Köhnə</option>
+                                    </select>
+                                </td>
+                                <td class="text_left"></td>
+                            </tr>
+                            <tr>
+                                <td class="text_right">Avtomobilin qiyməti:</td>
+                                <td class="kal_new_win_td">
+                                    <input class="input_style" type="text" name="sale" onpaste="return false" onkeypress="return isNumberKey(event);" id="custom_price"/>
+                                </td>
+                                <td class="text_left">USD</td>
+                            </tr>
+                            <tr>
+                                <td class="text_right">Mühərrikin isçi həcmi:</td>
+                                <td class="kal_new_win_td">
+                                    <input type="text" name="volume" onpaste="return false" onkeypress="return isNumberKey(event);" id="custom_engine"/>
+                                </td>
+                                <td class="text_left">sm<sup>3</sup></td>
+                            </tr>
+                            <tr>
+                                <td class="text_right">1$</td>
+                                <td class="kal_new_win_td">
+                                    <input type="text" name="volume" value="0.8" onpaste="return false" onkeypress="return isNumberKey(event);" id="custom_dollar_rate"/>
+                                </td>
+                                <td class="text_left">AZN</td>
+                            </tr>
+                            <tr>
+                                <td class="text_right"></td>
+                                <td class="kal_new_win_td">
+                                    <button type="button" id="gcal">Hesabla</button>
+                                </td>
+                                <td></td>
+                            </tr>
+
+                            <tr class="hesab_tr">
+                                <td colspan="2" class="hesab_td">
+                                    <span class="text_left">Aksiz vergisi:</span>
+                                    <span id="gk1" class="text_right kal_new_win_td display_b f-right"></span>
+                                </td>
+                                <td class="text_left"></td>
+                            </tr>
+                            <tr class="hesab_tr">
+                                <td colspan="2" class="hesab_td">
+                                    <span class="text_left">Gömrük vergisi:</span>
+                                    <span id="gk2" class="text_right kal_new_win_td display_b f-right"></span>
+                                </td>
+                                <td class="text_left"></td>
+                            </tr>
+                            <tr class="hesab_tr" class="hesab_td">
+                                <td colspan="2">
+                                    <span class="text_left">Eməliyyat haqqı:</span>
+                                    <span  id="gk3" class="text_right kal_new_win_td display_b f-right"></span>
+                                </td>
+                                <td class="text_left"></td>
+                            </tr>
+                            <tr class="hesab_tr">
+                                <td colspan="2" class="hesab_td">
+                                    <span class="text_left">Vəsiqə haqqı:</span>
+                                    <span id="gk4" class="text_right kal_new_win_td display_b f-right"></span>
+                                </td>
+                                <td class="text_left"></td>
+                            </tr>
+                            <tr class="hesab_tr">
+                                <td colspan="2" class="hesab_td">
+                                    <span class="text_left">EDV:</span>
+                                    <span id="gk5" class="text_right kal_new_win_td display_b f-right"></span>
+                                </td>
+                                <td class="text_left"></td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="3" class="hesab_td"><div id="line1"></div></td>
+                            </tr>
+                            <tr class="hesab_tr">
+                                <td colspan="2" class="hesab_td font_b">
+                                    <span class="text_left">Cəmi:</span>
+                                    <span id="gk6" class="text_right kal_new_win_td display_b f-right"></span>
+                                </td>
+                                <td class="text_left"></td>
+                            </tr>
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- page 6 -->
+
+
+    <div data-role="page" id="pagesix">
+
+        <div data-role="header" data-position="fixed">
+            <div class="header_fixed">
+                <div class="header_fixed_win">
+                    <a class="f-left" href="#pageone"><img class="logo_button1" src="img/logo_1.png"/></a>
+                    <a class="f-right" href="#pagenine"><img class="logo_button2" src="img/logo_radio.png"/></a>
+                    <a class="f-right header_fixed_win_y" href="https://www.youtube.com/channel/UCsUoL8RwXnVT7wa3uLe3lpg" target="_blank"><img class="logo_button2" src="img/logo_youtube.png"/></a>
+                </div>
+            </div>
+
+            <div data-role="navbar">
+                <ul>
+                    <li><a href="#pagetwo">Avtofayda</a><div id="parallelogram"></div></li>
+                    <li><a href="#pagethree">Məsləhətlər</a><div id="parallelogram"></div></li>
+                    <li><a href="#pagefour" class="ui-link ui-btn-active ui-state-persist">Kalkulyatorlar</a><div class="parallelogram ui-state-persist"></div></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div data-role="main" class="ui-content">
+
+            <div class="kals_window">
+                <div class="f-left">
+                    <img src="img/tb.png"/>
+                </div>
+
+                <div class="custom_info">
+                    <div class="custom_info_header"><span class="text_black">Texniki baxış</span></div>
+                    <div class="custom_middle">
+                        <div class="label_block">
+                            <label for="avto" id="tb-avto">Avtonəqliyyаt vаsitələri</label>
+                            <input type="radio" name="avtomoto" id="avto" value="avto"/>
+                            <label for="moto" id="tb-moto">Motonəqliyyat və digər mexaniki nəqliyyat vasitələri, qoşqular, yarımqoşqular</label>
+                            <input type="radio" name="avtomoto" id="moto" value="moto"/>
+                        </div>
+                        <table>
+                            <tr>
+                                <td class="text_right">Mühərrikin isçi həcmi:</td>
+                                <td class="kal_new_win_td">
+                                    <input type="text" name="volume" onpaste="return false" onkeypress="return isNumberKey(event);" id="tb-engine-vol"/>
+                                </td>
+                                <td class="text_left">sm<sup>3</sup></td>
+                            </tr>
+                            <tr>
+                                <td class="text_right"></td>
+                                <td class="kal_new_win_td">
+                                    <button type="button" id="tcal">Hesabla</button>
+                                </td>
+                                <td></td>
+                            </tr>
+
+                            <tr class="hesab_tr">
+                                <td colspan="2" class="hesab_td">
+                                    <span class="text_left">Yol vergisi:</span>
+                                    <span id="tb1" class="text_right kal_new_win_td display_b f-right"></span>
+                                </td>
+                                <td class="text_left"></td>
+                            </tr>
+                            <tr class="hesab_tr">
+                                <td colspan="2" class="hesab_td">
+                                    <span class="text_left">Rüsum:</span>
+                                    <span id="tb2" class="text_right kal_new_win_td display_b f-right"></span>
+                                </td>
+                                <td class="text_left"></td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="3" class="hesab_td"><div id="line2"></div></td>
+                            </tr>
+                            <tr class="hesab_tr">
+                                <th class="text_left" class="hesab_td">Cəmi:</th>
+                                <th id="tb3" class="kal_new_win_td text_right"></th>
+                                <td class="text_left"></td>
+                            </tr>
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+    <!-- page 7 -->
+
+
+    <div data-role="page" id="pageseven">
+
+        <div data-role="header" data-position="fixed">
+            <div class="header_fixed">
+                <div class="header_fixed_win">
+                    <a class="f-left" href="#pageone"><img class="logo_button1" src="img/logo_1.png"/></a>
+                    <a class="f-right" href="#pagenine"><img class="logo_button2" src="img/logo_radio.png"/></a>
+                    <a class="f-right header_fixed_win_y" href="https://www.youtube.com/channel/UCsUoL8RwXnVT7wa3uLe3lpg" target="_blank"><img class="logo_button2" src="img/logo_youtube.png"/></a>
+                </div>
+            </div>
+
+            <div data-role="navbar">
+                <ul>
+                    <li><a href="#pagetwo">Avtofayda</a><div id="parallelogram"></div></li>
+                    <li><a href="#pagethree">Məsləhətlər</a><div id="parallelogram"></div></li>
+                    <li><a href="#pagefour" class="ui-link ui-btn-active ui-state-persist">Kalkulyatorlar</a><div class="parallelogram ui-state-persist"></div></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div data-role="main" class="ui-content">
+
+            <div class="kals_window">
+                <div class="f-left">
+                    <img src="img/is.png"/>
+                </div>
+
+                <div class="custom_info">
+                    <div class="custom_info_header"><span class="text_black">İcbari sığorta</span></div>
+                    <div class="custom_middle">
+                        <div class="label_block">
+                            <label for="private-user">Fiziki şəxs üçün</label>
+                            <input type="radio" name="fh" value="fs" id="private-user"/>
+                            <label for="company-user">Hüquqi şəxs üçün</label>
+                            <input type="radio" name="fh" value="hs" id="company-user"/>
+                        </div>
+                        <table>
+                            <tr>
+                                <td colspan="3">Avtonəqliyyat vasitəsinin növü:</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <select class="select" id="avto-type">
+                                        <option value="1">Minik avtomobilləri</option>
+                                        <option value="2">Avtobuslar</option>
+                                        <option value="3">Yük avtomobilləri</option>
+                                        <option value="4">Motosikletlər və motorollerlər</option>
+                                        <option value="5">Qoşqular və yarımqoşqular</option>
+                                        <option value="6">Traktorlar</option>
+                                        <option value="7">Trolleybuslar və tramvaylar</option>
+                                    </select>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr class="hesab_tr1">
+                                <td colspan="2" style="padding-top:15px;">Mühərrikin isçi həcmi:</td>
+                                <td></td>
+                            </tr>
+                            <tr class="hesab_tr1">
+                                <td colspan="2">
+                                    <select class="select" id="engine-vol">
+                                        <option value="1">50 - 1500</option>
+                                        <option value="2">1501 - 2000</option>
+                                        <option value="3">2001 - 2500</option>
+                                        <option value="4">2501 - 3000</option>
+                                        <option value="5">3001 - 3500</option>
+                                        <option value="6">3501 - 4000</option>
+                                        <option value="7">4001 - 4500</option>
+                                        <option value="8">4501 - 5000</option>
+                                        <option value="9">> 5000</option>
+                                    </select>
+                                </td>
+                                <td class="text_left">sm<sup>3</sup></td>
+                            </tr>
+                            <tr class="hesab_tr2">
+                                <td colspan="2" style="padding-top:15px;">Sərnişin yerlərinin sayı:</td>
+                                <td></td>
+                            </tr>
+                            <tr class="hesab_tr2">
+                                <td colspan="2">
+                                    <select class="select" id="passenger-count">
+                                        <option value="1">9 - 16</option>
+                                        <option value="2">16-dan çox</option>
+                                    </select>
+                                </td>
+                                <td class="text_left"></td>
+                            </tr>
+                            <tr class="hesab_tr3">
+                                <td colspan="2" style="padding-top:15px;">Maksimum kütlə:</td>
+                                <td></td>
+                            </tr>
+                            <tr class="hesab_tr3">
+                                <td colspan="2">
+                                    <select class="select" id="weight">
+                                        <option value="1">3500 kq-dan çox olmadıqda</option>
+                                        <option value="2">3501 kq – 7 000 kq</option>
+                                        <option value="3">7000 kq – dan yuxarı</option>
+                                    </select>
+                                </td>
+                                <td class="text_left"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">
+                                    <div class="label_block" style="margin-bottom:0px;">
+                                        <label for="from-another-country" style="font-size:1em;">Azərbaycan Respublikasına tranzit məqsədilə daxil olan avtonəqliyyat vasitələri üçün</label>
+                                        <input type="checkbox" name="reqis" id="from-another-country" value="req" />
+                                    </div>
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td class="text_white">text white</td>
+                                <td class="kal_new_win_td" style="padding:0;">
+                                    <button type="button" id="ical">Hesabla</button>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="hesab_td"><div id="line3"></div></td>
+                            </tr>
+                            <tr class="hesab_tr font_b">
+                                <td class="text_left" class="hesab_td">Cəmi:</td>
+                                <td id="isigorta" class="text_right"></td>
+                                <td class="text_left"></td>
+                            </tr>
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <!-- page 8 -->
+
+
+
+    <div data-role="page" id="pageeight">
+        <div data-role="header" data-position="fixed">
+            <div class="header_fixed">
+                <div class="header_fixed_win">
+                    <a class="f-left" href="#pageone"><img class="logo_button1" src="img/logo_1.png"/></a>
+                    <a class="f-right" href="#pagenine"><img class="logo_button2" src="img/logo_radio.png"/></a>
+                    <a class="f-right header_fixed_win_y" href="https://www.youtube.com/channel/UCsUoL8RwXnVT7wa3uLe3lpg" target="_blank"><img class="logo_button2" src="img/logo_youtube.png"/></a>
+                </div>
+            </div>
+            <div data-role="navbar">
+                <ul>
+                    <li><a href="#pagetwo">Avtofayda</a><div id="parallelogram"></div></li>
+                    <li><a href="#pagethree">Məsləhətlər</a><div id="parallelogram"></div></li>
+                    <li><a href="#pagefour" class="ui-link ui-btn-active ui-state-persist">Kalkulyatorlar</a><div class="parallelogram ui-state-persist"></div></li>
+                </ul>
+            </div>
+        </div>
+        <div data-role="main" class="ui-content">
+            <div class="kals_window">
+                <div class="f-left">
+                    <img src="img/ks.png"/>
+                </div>
+
+                <div class="custom_info">
+                    <div class="custom_info_header"><span class="text_black">KASKO sığorta</span></div>
+                    <div class="custom_middle">
+
+                        <table>
+                            <tr>
+                                <td colspan="2" style=" padding-top:10px;">Buraxılış ili:</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <select name="bi" class="select">
+                                        <option value="">--</option>
+                                        <option value="2005">1998 - 2005</option>
+                                        <option value="2014">2006 - 2014</option>
+                                    </select>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style=" padding-top:10px;">Orta bazar qiyməti:</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <input type="text" name="sm" onpaste="return false" onkeypress="return isNumberKey(event);"/>
+                                </td>
+                                <td class="text_left">AZN</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style=" padding-top:10px;">Franşıza məbləği:</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <select class="select" name="fr">
+                                        <option value="0">0</option>
+                                        <option value="1">100</option>
+                                        <option value="2">150</option>
+                                        <option value="3">200</option>
+                                        <option value="4">250</option>
+                                        <option value="5">300</option>
+                                        <option value="6">500</option>
+                                        <option value="7">750</option>
+                                        <option value="8">1000</option>
+                                        <option value="9">1500</option>
+                                        <option value="10">2000</option>
+                                    </select>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"style=" padding-top:10px;">Siğorta müddəti:</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <select class="select" name="md">
+                                        <option value="">--</option>
+                                        <option value="1">1 ay</option>
+                                        <option value="2">2 ay</option>
+                                        <option value="3">3 ay</option>
+                                        <option value="4">4 ay</option>
+                                        <option value="5">5 ay</option>
+                                        <option value="6">6 ay</option>
+                                        <option value="7">7 ay</option>
+                                        <option value="8">8 ay</option>
+                                        <option value="9">9 ay</option>
+                                        <option value="10">10 ay</option>
+                                        <option value="11">11 ay</option>
+                                        <option value="12">1 il</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text_white">text white</td>
+                                <td class="kal_new_win_td" style="padding:10px 0px 0px 0px;">
+                                    <button type="button" id="hbutton">Hesabla</button>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="hesab_td"><div id="line4"></div></td>
+                            </tr>
+                            <tr class="hesab_tr">
+                                <th class="text_left" class="hesab_td">Cəmi:</th>
+                                <th id="hsmv" class="text_right"></th>
+                                <td class="text_left"></td>
+                            </tr>
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- page 9 -->
+
+
+    <div data-role="page" id="pagenine">
+        <div data-role="header" data-position="fixed">
+            <div class="header_fixed">
+                <div class="header_fixed_win">
+                    <a class="f-left" href="#pageone"><img class="logo_button1" src="img/logo_1.png"/></a>
+                    <a class="f-right header_fixed_win_y" href="https://www.youtube.com/channel/UCsUoL8RwXnVT7wa3uLe3lpg" target="_blank"><img class="logo_button2" src="img/logo_youtube.png"/></a>
+                </div>
+            </div>
+        </div>
+        <div data-role="main" class="ui-content">
+
+
+            <div class="radio_block">
+                <p>Bu bölmədə siz Avtostop radio verilişini	hər gün saat 18:00-dan 20:00-dək dinləyə bilərsiniz.</p>
+                <img src="img/radio_grey.png"/>
+                <script type="html/template" id="t-player">
+                    <div class="" id="player-container" style="position: absolute; top: -10000px;">
+                        <object width="1" height="1" style="width:01px; height:01px;" id="swfclientid414114613088241" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"> <param value="http://d2iwzbhgddzdwl.cloudfront.net/resources/swfclient/sua.swf" name="movie"> <param value="printfunc=swfclientid414114613088241print&amp;donefunc=swfclientid414114613088241done&amp;0=-osasua:id414114613088241osasua&amp;1=-suaosa:cloudfront.net:id414114613088241suaosa&amp;2=-allowDomain:d2iwzbhgddzdwl.cloudfront.net&amp;3=-allowInsecureDomain:d2iwzbhgddzdwl.cloudfront.net" name="flashvars"> <param value="always" name="AllowScriptAccess"> <param value="transparent" name="wmode"> <embed width="1" height="1" type="application/x-shockwave-flash" flashvars="printfunc=swfclientid414114613088241print&amp;donefunc=swfclientid414114613088241done&amp;0=-osasua:id414114613088241osasua&amp;1=-suaosa:cloudfront.net:id414114613088241suaosa&amp;2=-allowDomain:d2iwzbhgddzdwl.cloudfront.net&amp;3=-allowInsecureDomain:d2iwzbhgddzdwl.cloudfront.net" allowscriptaccess="always" wmode="transparent" name="swfclientid414114613088241" src="http://d2iwzbhgddzdwl.cloudfront.net/resources/swfclient/sua.swf"> </object>
+                        <object width="900" height="210" type="application/x-shockwave-flash" id="player" name="player" data="http://d2iwzbhgddzdwl.cloudfront.net/resources/player/infinitehd2/player.swf" style="visibility: visible;"><param name="allowFullScreen" value="true"><param name="scale" value="noscale"><param name="allowScriptAccess" value="always"></object>
+                        <script src="https://d2iwzbhgddzdwl.cloudfront.net/resources/player/infinitehd2/swfobject.js" >
+                </script>
+            </div>
+        </div>
+    </div>
+    </body>
+    </html>

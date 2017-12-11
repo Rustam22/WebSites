@@ -1,0 +1,124 @@
+/* Common Styles */
+html {
+	height: 100%;
+    overflow-y: scroll;
+}
+form,p,ul,li {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-family: Arial, Tahoma, Verdana, "Times New Roman", sans-serif;
+	font-size: 13px;
+	color: #424242;
+	/*background: url(../img/bg-noise.png) repeat scroll 0 0 #292B30;*/
+}
+img {
+	border: 0;
+}
+.left {
+    float: left;
+}
+.right {
+    float: right;
+}
+.clear {
+    clear: both;
+}
+.text-center {
+    text-align: center;
+}
+.width100 {
+	width: 100%;
+}
+.absolute {
+	position: absolute;
+}
+.relative {
+	position: relative;
+}
+.hide {
+	display: none;
+}
+.font12 {
+	font-size: 12px;
+}
+.margin0 {
+	margin: 0;
+}
+.padding0 {
+	padding: 0;
+}
+.gray {
+	color: #666;
+}
+.sql-command-green {
+	color: #143a9c;
+}
+.bold {
+	font-weight: bold;
+}
+/* Common Styles end */
+
+/* Buttons */
+.button {
+	padding: 5px 15px;
+	border-radius: 5px;
+	box-shadow: 0 2px 3px #000;
+	border: 0;
+	cursor: pointer;
+	text-decoration: none;
+	color: #000;
+	text-shadow: 0 1px 1px #fff;
+	margin: 5px 0;
+	text-align: center;
+}
+.button:active {
+	box-shadow: 0 1px 3px #000;
+}
+.apple-button {
+	background: rgb(6, 6, 6);
+	background: rgba(6, 6, 6, 0.5);
+}
+/* Buttons end */
+
+/* Link */
+.link {
+	text-decoration: none;
+	text-shadow: 0 1px 1px #fff;
+	color: #999;
+}
+.link:hover {
+	text-decoration: underline;
+	color: #333;
+}
+/* Link end */
+
+/* left side */
+#left-side {
+	width: 9%;
+	padding: 0.5%;
+	background-color: #eee;
+	height: 100%;
+}
+/* left side end */
+
+/* content */
+#content-container {
+	width: 69%;
+	margin-left: 1%;
+}
+/* content end */
+.models-to-synchronize {
+	
+}
+.sql-commands {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
